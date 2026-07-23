@@ -1,0 +1,1491 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+
+<title>VecSpin</title>
+
+<style>
+* {
+    box-sizing: border-box;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    margin:0;
+    padding:0;
+}
+
+body {
+    background:#101820;
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    font-family:Arial, sans-serif;
+}
+.helpPopup {
+
+    position:fixed;
+    inset:0;
+
+    background:rgba(0,0,0,0.75);
+
+    display:flex;
+    justify-content:center;
+    align-items:center;
+
+    z-index:1000;
+
+}
+
+
+.helpBox {
+
+    width:80%;
+    max-width:350px;
+
+    background:#16213e;
+
+    color:white;
+
+    padding:25px;
+
+    border-radius:20px;
+
+    text-align:center;
+
+    box-shadow:0 10px 30px #000;
+
+}
+
+
+.helpBox h2 {
+
+    margin-bottom:15px;
+
+}
+
+
+.helpBox p {
+
+    margin:15px 0;
+
+    line-height:1.5;
+
+}
+.undoButton {
+    margin-bottom:8px;
+    padding:6px 15px;
+    font-size:14px;
+}
+
+.game {
+    width:95vw;
+    max-width:500px;
+    background:#16213e;
+    padding:15px;
+    border-radius:25px;
+    box-shadow:0 20px 40px #000;
+    text-align:center;
+}
+
+h1 {
+    color:white;
+    letter-spacing:4px;
+    font-weight:300;
+    margin-bottom:12px;
+}
+
+.status {
+    display:flex;
+    justify-content:space-between;
+    background:#0f3460;
+    color:white;
+    padding:10px;
+    border-radius:30px;
+    margin-bottom:15px;
+}
+
+.board {
+    display:grid;
+    grid-template-columns:repeat(8,1fr);
+    gap:3px;
+    background:#07111f;
+    padding:8px;
+    border-radius:20px;
+    aspect-ratio:1;
+    box-shadow:none;
+}
+.lastMove{
+    background:#d8b4fe !important;
+}
+
+.square {
+    aspect-ratio:1;
+    background:#e8dfc8;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    border-radius:4px;
+}
+
+.square.dark {
+    background:#a77b5a;
+}
+
+.pivotFlash {
+    animation: pivotFlash 0.5s ease;
+}
+
+@keyframes pivotFlash {
+
+    0% {
+        box-shadow: inset 0 0 0px purple;
+    }
+
+    50% {
+        box-shadow: inset 0 0 25px purple;
+        background:#c77dff;
+    }
+
+    100% {
+        box-shadow: inset 0 0 0px purple;
+    }
+
+}
+
+.square.selected {
+    outline:3px solid #00e5ff;
+    box-shadow:
+        0 0 15px #00e5ff;
+}
+
+.square.move {
+    background:#5ee6a8;
+    box-shadow:
+        inset 0 0 12px #00ff99;
+}
+
+.square.capture {
+    background:#ff5577;
+    box-shadow:
+        inset 0 0 12px #ff0033;
+}
+
+.piece {
+    width:85%;
+    height:85%;
+    border-radius:50%;
+    display:grid;
+    place-items:center;
+    position:relative;
+    box-shadow:none;
+    font-size:12px;
+    font-weight:bold;
+}
+
+.white {
+    background:#eee;
+    color:#111;
+    border:1.5px solid #222;
+    
+}
+
+.black {
+    background:#222;
+    color:white;
+    border:1.5px solid #eee;
+}
+
+
+.compass {
+    position:relative;
+    width:100%;
+    height:100%;
+}
+
+.compassSVG {
+    width:100%;
+    height:100%;
+}
+
+.blade {
+    filter:none;
+}
+
+
+.n  {top:0;left:50%;transform:translateX(-50%)}
+.ne {top:5%;right:5%}
+.e  {right:0;top:50%;transform:translateY(-50%)}
+.se {bottom:5%;right:5%}
+.s  {bottom:0;left:50%;transform:translateX(-50%)}
+.sw {bottom:5%;left:5%}
+.w  {left:0;top:50%;transform:translateY(-50%)}
+.nw {top:5%;left:5%}
+
+
+.info {
+    color:#ccc;
+    margin:12px;
+    font-size:14px;
+}
+
+
+button {
+    background:#e94560;
+    color:white;
+    border:none;
+    padding:10px 25px;
+    border-radius:30px;
+    font-weight:bold;
+}
+
+.panel {
+    display:flex;
+    justify-content:center;
+    gap:5px;
+    flex-wrap:wrap;
+    margin:8px;
+}
+
+.panel button {
+    width:32px;
+    height:32px;
+    padding:0;
+    font-size:20px;
+    border-radius:8px;
+}
+
+#whitePanel button{
+    background:#ff304f;
+    color:white;
+}
+
+#blackPanel button{
+    background:#00bfff;
+    color:white;
+}
+
+.panel button:disabled {
+    opacity:0.25;
+}
+@media(max-width:500px){
+
+    .arrow {
+        font-size:11px;
+    }
+
+}
+</style>
+
+</head>
+
+
+<body>
+
+<div class="game">
+<div id="helpPopup" class="helpPopup">
+
+    <div class="helpBox">
+
+        <h2>🧭VecSpin⚔️</h2>
+
+        <p>
+        Select a piece to see its possible moves.
+        Highlighted squares show where the piece can move or capture.
+        </p>
+
+        <p>
+        Use the direction buttons to pivot your piece's arrow and change its movement direction.
+        </p>
+
+        <button onclick="closeHelp()">
+            Start Game
+        </button>
+
+    </div>
+
+</div>
+
+<h1>🧭VecSpin⚔️</h1>
+
+
+<div class="status">
+
+<span id="whiteCount">
+⚪ 16
+</span>
+
+<span id="turn">
+WHITE
+</span>
+
+<span id="blackCount">
+⚫ 16
+</span>
+
+</div>
+
+<button class="undoButton" onclick="undoMove()">
+↶ Undo
+</button>
+
+<div id="whitePanel" class="panel"></div>
+
+<div id="board" class="board"></div>
+
+<div id="blackPanel" class="panel"></div>
+
+
+<div id="info" class="info">
+Select a piece
+</div>
+
+
+<button onclick="resetGame()">
+⟳ New Game
+</button>
+
+
+</div>
+
+
+<script>
+const SIZE = 8;
+
+let board = [];
+let turn = "white";
+let selected = null;
+let validMoves = [];
+let gameOver = false;
+let actionMode = "move";
+let flashSquare = null;
+let lastMove = null;
+let moveHistory = [];
+let startRotation = 0;
+let holdTimer = null;
+let holdTarget = null;
+
+
+const DIRS = {
+    n:{r:-1,c:0},
+    ne:{r:-1,c:1},
+    e:{r:0,c:1},
+    se:{r:1,c:1},
+    s:{r:1,c:0},
+    sw:{r:1,c:-1},
+    w:{r:0,c:-1},
+    nw:{r:-1,c:-1}
+};
+
+
+const ARROWS = {
+    n:"↑",
+    ne:"↗",
+    e:"→",
+    se:"↘",
+    s:"↓",
+    sw:"↙",
+    w:"←",
+    nw:"↖"
+};
+
+function createCompassSVG(piece){
+
+    let svg = document.createElementNS(
+        "http://www.w3.org/2000/svg",
+        "svg"
+    );
+
+
+    svg.setAttribute(
+        "viewBox",
+        "0 0 100 100"
+    );
+
+
+    svg.classList.add("compassSVG");
+
+
+    let directions = [
+        "n",
+        "ne",
+        "e",
+        "se",
+        "s",
+        "sw",
+        "w",
+        "nw"
+    ];
+
+
+    let rotations = {
+        n:0,
+        ne:45,
+        e:90,
+        se:135,
+        s:180,
+        sw:225,
+        w:270,
+        nw:315
+    };
+
+
+    svg.innerHTML = directions.map(dir=>`
+        <defs>
+        
+        <linearGradient id="bladeGradient">
+      
+          <stop offset="0%" stop-color="#ffffff"/>
+      
+          <stop offset="35%" stop-color="#00e5ff"/>
+      
+          <stop offset="100%" stop-color="#0066ff"/>
+      
+        </linearGradient>
+        
+        
+        <radialGradient id="gemGradient">
+        
+            <stop offset="0%" stop-color="#ffffff"/>
+        
+            <stop offset="35%" stop-color="#4dd0e1"/>
+        
+            <stop offset="100%" stop-color="#006064"/>
+        
+        </radialGradient>
+        
+        </defs>
+        <g 
+        id="${dir}"
+        class="blade"
+        transform="translate(0.9 -5) rotate(${rotations[dir]} 50 50)"
+        opacity="0">
+        
+        <path
+        d="
+        M50 10
+        L61 28
+        L39 28
+        Z"
+        fill="currentColor"
+        stroke="currentColor"
+        stroke-width="8"
+        stroke-linejoin="round"
+        />
+
+        </g>
+
+    `).join("");
+    
+    svg.innerHTML += `
+    
+    <circle
+        cx="50"
+        cy="47"
+        r="8"
+        fill="${piece.color === "white" ? "#111" : "#fff"}"
+        stroke="none"
+    />
+    
+    <defs>
+    
+    <radialGradient id="gemGradient">
+    
+        <stop offset="0%" stop-color="#ffffff"/>
+    
+        <stop offset="35%" stop-color="#4dd0e1"/>
+    
+        <stop offset="100%" stop-color="#006064"/>
+    
+    </radialGradient>
+    
+    </defs>
+    
+    `;
+
+
+    for(let d of piece.dirs){
+
+        svg
+        .querySelector("#"+d)
+        .setAttribute(
+            "opacity",
+            "1"
+        );
+
+    }
+
+
+    return svg;
+
+}
+
+function rotatePiece(amount){
+
+    if(!selected)
+        return;
+
+
+    let piece = board[selected.r][selected.c];
+
+
+    if(!piece || piece.color !== turn)
+        return;
+    saveState();
+
+    const directions = [
+        "n",
+        "ne",
+        "e",
+        "se",
+        "s",
+        "sw",
+        "w",
+        "nw"
+    ];
+
+
+    let newDirs = new Set();
+
+
+    for(let d of piece.dirs){
+
+        let index = directions.indexOf(d);
+
+        index =
+        (index + amount + 8) % 8;
+
+
+        newDirs.add(
+            directions[index]
+        );
+
+    }
+
+
+    piece.dirs = newDirs;
+
+
+    flashSquare = {
+        r:selected.r,
+        c:selected.c
+    };
+    
+    lastMove = [
+        { r:selected.r, c:selected.c }
+    ];
+    
+    selected=null;
+    validMoves=[];
+    
+    changeTurn();
+    
+    requestAnimationFrame(render);
+
+}
+
+function pivotPiece(dir){
+
+    if(!selected) return;
+
+    let piece = board[selected.r][selected.c];
+
+    if(!piece || piece.color !== turn)
+        return;
+    saveState();
+
+    piece.dirs.clear();
+
+    piece.dirs.add(dir);
+
+    flashSquare = {
+      r: selected.r,
+      c: selected.c
+    };
+
+
+    lastMove = [
+        { r:selected.r, c:selected.c }
+    ];
+    
+    selected = null;
+    validMoves = [];
+    
+    changeTurn();
+
+    requestAnimationFrame(render);
+
+}
+
+function createPiece(color,dir){
+
+    return {
+        color:color,
+        dirs:new Set([dir])
+    };
+
+}
+
+
+
+function initBoard(){
+
+    board=[];
+
+    for(let r=0;r<SIZE;r++){
+
+        board[r]=[];
+
+        for(let c=0;c<SIZE;c++){
+            board[r][c]=null;
+        }
+    }
+
+
+      const whiteDirections = [
+          "n",
+          "ne",
+          "e",
+          "se",
+          "s",
+          "sw",
+          "w",
+          "nw"
+      ];
+    
+      
+      for(let c = 0; c < SIZE; c++){
+            
+      // White side - rows swapped
+      board[0][c] = createPiece(
+          "white",
+          whiteDirections[(c + 4 + startRotation) % 8]
+      );
+      board[1][c] = createPiece(
+          "white",
+          whiteDirections[(c + startRotation) % 8]
+      );
+      
+      
+          // Black side: mirror the vertical pairs
+          board[7][7-c] = createPiece(
+              "black",
+              whiteDirections[(c + startRotation) % 8]
+          );
+          
+          board[6][7-c] = createPiece(
+              "black",
+              whiteDirections[(c + 4 + startRotation) % 8]
+          );
+      
+      }
+
+}
+
+function areAdjacent(a,b){
+
+    return Math.abs(a.r-b.r)<=1 &&
+           Math.abs(a.c-b.c)<=1 &&
+           !(a.r===b.r && a.c===b.c);
+
+}
+
+
+
+function canMerge(first, second){
+
+    if(!first || !second)
+        return false;
+
+
+    if(first.color !== second.color)
+        return false;
+
+
+    if(first.dirs.size !== 1 ||
+       second.dirs.size !== 1)
+        return false;
+
+
+    let dir1=[...first.dirs][0];
+    let dir2=[...second.dirs][0];
+
+
+    if(dir1 === dir2)
+        return false;
+
+
+    return true;
+
+}
+
+
+
+function tryMerge(r,c){
+
+
+    if(!selected)
+        return;
+
+
+    let first =
+    board[selected.r][selected.c];
+
+
+    let second =
+    board[r][c];
+
+
+    if(!canMerge(first,second))
+        return;
+
+
+    saveState();
+
+
+    // add second arrow to first piece
+
+    for(let d of first.dirs){
+
+        second.dirs.add(d);
+    
+    }
+    
+    
+    // remove first piece
+    
+    board[selected.r][selected.c]=null;
+
+
+    lastMove=[
+        {
+            r:selected.r,
+            c:selected.c
+        },
+        {
+            r:r,
+            c:c
+        }
+    ];
+
+
+    flashSquare={
+        r:r,
+        c:c
+    };
+
+
+    selected=null;
+    validMoves=[];
+
+
+    changeTurn();
+
+    render();
+
+}
+
+function render(){
+
+    const el=document.getElementById("board");
+
+    el.innerHTML="";
+
+
+    for(let r=0;r<SIZE;r++){
+
+        for(let c=0;c<SIZE;c++){
+
+
+            let sq=document.createElement("div");
+
+            sq.className="square";
+            if (
+                  lastMove &&
+                  lastMove.some(pos => pos.r === r && pos.c === c)
+              ){
+                  sq.classList.add("lastMove");
+              }
+            if(
+                flashSquare &&
+                flashSquare.r===r &&
+                flashSquare.c===c
+            ){
+                sq.classList.add("pivotFlash");
+            }
+            if((r+c)%2)
+                sq.classList.add("dark");
+
+
+            if(selected &&
+               selected.r===r &&
+               selected.c===c)
+                sq.classList.add("selected");
+
+
+            let move=validMoves.find(
+                m=>m.r===r && m.c===c
+            );
+
+
+            if(move){
+
+                sq.classList.add(
+                    move.capture?
+                    "capture":
+                    "move"
+                );
+
+            }
+
+
+
+            let piece=board[r][c];
+
+
+            if(piece){
+
+                let p=document.createElement("div");
+
+                p.className=
+                    "piece "+piece.color;
+
+
+                let compass=document.createElement("div");
+
+                compass.className="compass";
+
+            
+            let compassSVG =
+                createCompassSVG(piece);
+            
+            
+            compassSVG.style.color =
+              piece.color === "white"
+              ? "#111"
+              : "#fff";
+                      
+            
+            compass.appendChild(compassSVG);
+
+
+                p.appendChild(compass);
+
+                sq.appendChild(p);
+
+            }
+
+
+            sq.onpointerdown = ()=>{
+        
+            if(holdTimer)
+                clearTimeout(holdTimer);
+        
+        
+            holdTarget={r:r,c:c};
+        
+        
+            holdTimer=setTimeout(()=>{
+        
+                tryMerge(r,c);
+        
+            },1000);
+        
+        };
+        
+        
+        sq.onpointerup = ()=>{
+        
+            if(holdTimer){
+        
+                clearTimeout(holdTimer);
+                holdTimer=null;
+        
+            }
+        
+            if(holdTarget){
+        
+                clickSquare(
+                    holdTarget.r,
+                    holdTarget.c
+                );
+        
+            }
+        
+        };
+        
+        
+        sq.onpointerleave = ()=>{
+        
+            if(holdTimer){
+        
+                clearTimeout(holdTimer);
+                holdTimer=null;
+        
+            }
+        
+        };
+
+
+            el.appendChild(sq);
+
+        }
+    }
+
+    flashSquare = null;
+    updateStatus();
+
+}
+
+
+
+function updateStatus(){
+
+    let white=0;
+    let black=0;
+
+
+    for(let row of board){
+
+        for(let p of row){
+
+            if(p){
+
+                if(p.color==="white")
+                    white++;
+
+                else
+                    black++;
+
+            }
+        }
+    }
+
+
+    document.getElementById("whiteCount").textContent=
+        "⚪ "+white;
+
+
+    document.getElementById("blackCount").textContent=
+        "⚫ "+black;
+
+
+    document.getElementById("turn").textContent=
+        turn.toUpperCase();
+
+
+
+    if(gameOver){
+
+        document.getElementById("info").textContent=
+        turn.toUpperCase()+" WINS!";
+
+    }
+
+}
+
+
+
+function inside(r,c){
+
+    return r>=0 &&
+           r<SIZE &&
+           c>=0 &&
+           c<SIZE;
+
+}
+
+
+
+function getMoves(r,c){
+
+
+    let piece=board[r][c];
+
+    let moves=[];
+
+    // Arrow movement
+
+    for(let d of piece.dirs){
+
+
+        let v=DIRS[d];
+
+        let nr=r+v.r;
+        let nc=c+v.c;
+
+
+        while(inside(nr,nc)){
+
+
+            let target=board[nr][nc];
+
+
+            if(!target){
+
+                moves.push({
+                    r:nr,
+                    c:nc,
+                    capture:false
+                });
+
+            }
+
+
+            else{
+
+
+                if(target.color!==piece.color){
+
+                    moves.push({
+                        r:nr,
+                        c:nc,
+                        capture:true
+                    });
+
+                }
+
+
+                break;
+
+            }
+
+
+            nr+=v.r;
+            nc+=v.c;
+
+        }
+    }
+
+
+    return moves;
+
+}
+
+
+
+
+function clickSquare(r,c){
+
+
+    if(gameOver)
+        return;
+
+
+
+    let piece=board[r][c];
+
+
+
+    if(selected){
+
+
+        let move=validMoves.find(
+            m=>m.r===r && m.c===c
+        );
+
+
+        if(move){
+            saveState();
+            let attacker=
+            board[selected.r][selected.c];
+
+
+
+            if(move.capture){
+
+
+                let victim=board[r][c];
+
+
+                // MERGE ARROWS
+
+                for(let d of victim.dirs){
+
+                    attacker.dirs.add(d);
+
+                }
+
+            }
+
+
+            lastMove = [
+                { r:selected.r, c:selected.c },
+                { r:r, c:c }
+            ];
+            board[r][c]=attacker;
+
+            board[selected.r][selected.c]=null;
+
+
+            selected=null;
+            validMoves=[];
+
+
+            changeTurn();
+
+            checkWin();
+
+            render();
+
+            return;
+
+        }
+
+    }
+
+
+
+    if(piece && piece.color===turn){
+
+
+        selected={
+            r:r,
+            c:c
+        }
+        validMoves=getMoves(r,c);
+        updatePanels();
+
+        
+
+
+        requestAnimationFrame(render);
+
+    }
+
+
+}
+
+
+
+function changeTurn(){
+
+    turn =
+    turn==="white"
+    ?
+    "black"
+    :
+    "white";
+
+
+    updatePanels();
+
+}
+
+
+
+function checkWin(){
+
+    let white=false;
+    let black=false;
+
+
+    for(let row of board){
+
+        for(let p of row){
+
+            if(p){
+
+                if(p.color==="white")
+                    white=true;
+
+                if(p.color==="black")
+                    black=true;
+
+            }
+        }
+    }
+
+
+    if(!white || !black){
+
+        gameOver=true;
+
+        turn =
+        white?
+        "white":
+        "black";
+
+    }
+
+}
+
+
+function createDirectionPanels(){
+
+    const whitePanel =
+        document.getElementById("whitePanel");
+
+    const blackPanel =
+        document.getElementById("blackPanel");
+
+
+    whitePanel.innerHTML="";
+    blackPanel.innerHTML="";
+
+
+    for(let dir in ARROWS){
+
+
+        let w=document.createElement("button");
+        w.classList.add("directionButton");
+        w.dataset.dir = dir;
+        w.textContent=ARROWS[dir];
+
+
+        w.onclick=()=>{
+
+            if(turn==="white"){
+
+                pivotPiece(dir);
+
+            }
+
+        };
+
+
+        whitePanel.appendChild(w);
+
+
+
+        let b=document.createElement("button");
+        b.classList.add("directionButton");
+        b.dataset.dir = dir;
+        b.textContent=ARROWS[dir];
+
+
+        b.onclick=()=>{
+
+            if(turn==="black"){
+
+                pivotPiece(dir);
+
+            }
+
+        };
+
+
+        blackPanel.appendChild(b);
+
+    }
+
+        // Rotation buttons
+    
+    let rotateRight = document.createElement("button");
+    rotateRight.classList.add("rotateButton");
+    
+    rotateRight.textContent = "↻";
+    
+    rotateRight.onclick = ()=>{
+    
+        if(turn==="white"){
+            rotatePiece(1);
+        }
+    
+    };
+    
+    whitePanel.appendChild(rotateRight);
+    
+    
+    
+    let rotateLeft = document.createElement("button");
+    rotateLeft.classList.add("rotateButton");
+    
+    rotateLeft.textContent = "↺";
+    
+    rotateLeft.onclick = ()=>{
+    
+        if(turn==="white"){
+            rotatePiece(-1);
+        }
+    
+    };
+    
+    whitePanel.appendChild(rotateLeft);
+    
+    
+    
+    
+    // Black side
+    
+    let rotateRightB = document.createElement("button");
+    rotateRightB.classList.add("rotateButton");
+    rotateRightB.textContent = "↻";
+    
+    rotateRightB.onclick = ()=>{
+    
+        if(turn==="black"){
+            rotatePiece(1);
+        }
+    
+    };
+    
+    blackPanel.appendChild(rotateRightB);
+    
+    
+    
+    let rotateLeftB = document.createElement("button");
+    rotateLeftB.classList.add("rotateButton");
+    rotateLeftB.textContent = "↺";
+    
+    rotateLeftB.onclick = ()=>{
+    
+        if(turn==="black"){
+            rotatePiece(-1);
+        }
+    
+    };
+    
+    blackPanel.appendChild(rotateLeftB);
+    updatePanels();
+
+}
+
+function updatePanels(){
+
+    let multiArrow = false;
+
+    if(selected){
+
+        let piece = board[selected.r][selected.c];
+
+        if(piece && piece.dirs.size > 1){
+            multiArrow = true;
+        }
+
+    }
+
+
+    document
+    .querySelectorAll("#whitePanel button")
+    .forEach(btn=>{
+
+        btn.disabled = turn !== "white";
+
+    });
+
+
+    document
+    .querySelectorAll("#blackPanel button")
+    .forEach(btn=>{
+
+        btn.disabled = turn !== "black";
+
+    });
+
+
+
+    // Multi-arrow pieces:
+    // disable normal directions
+    // enable rotation
+
+    document
+    .querySelectorAll(".directionButton")
+    .forEach(btn=>{
+
+        if(turn==="white" || turn==="black"){
+
+            btn.disabled =
+            btn.disabled || multiArrow;
+
+        }
+
+    });
+
+
+
+    document
+    .querySelectorAll(".rotateButton")
+    .forEach(btn=>{
+
+        if(turn==="white" || turn==="black"){
+
+            btn.disabled =
+            btn.disabled || !multiArrow;
+
+        }
+
+    });
+
+}
+
+function saveState(){
+
+    let copy = board.map(row =>
+        row.map(piece => {
+
+            if(!piece) return null;
+
+            return {
+                color: piece.color,
+                dirs: new Set(piece.dirs)
+            };
+
+        })
+    );
+
+
+    moveHistory.push({
+        board: copy,
+        turn: turn
+    });
+
+}
+
+
+
+function undoMove(){
+
+    if(moveHistory.length === 0)
+        return;
+
+
+    let previous = moveHistory.pop();
+
+
+    board = previous.board;
+
+    turn = previous.turn;
+
+
+    selected = null;
+    validMoves = [];
+    gameOver = false;
+
+
+    render();
+    updatePanels();
+
+}
+
+function resetGame(){
+
+    moveHistory = [];
+
+    turn="white";
+    selected=null;
+    validMoves=[];
+    gameOver=false;
+
+    startRotation = Math.floor(Math.random() * 8);
+    initBoard();
+
+    render();
+    updatePanels();
+}
+
+
+function closeHelp(){
+
+    document.getElementById("helpPopup").style.display="none";
+
+}
+createDirectionPanels();
+
+resetGame();
+</script>
+
+
+</body>
+</html>
