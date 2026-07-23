@@ -345,6 +345,9 @@ Select a piece
 <button onclick="resetGame()">
 ⟳ New Game
 </button>
+<button onclick="createRoom()">
+Create Room
+</button>
 
 
 </div>
@@ -358,6 +361,31 @@ const supabaseClient = supabase.createClient(
     SUPABASE_URL,
     SUPABASE_KEY
 );    
+
+let roomCode = null;
+let playerId = null;
+let playerColor = null;
+
+function generatePlayerId(){
+
+    let id =
+        localStorage.getItem("playerId");
+
+    if(id)
+        return id;
+
+    id = crypto.randomUUID();
+
+    localStorage.setItem(
+        "playerId",
+        id
+    );
+
+    return id;
+
+}
+
+playerId = generatePlayerId();
 const SIZE = 8;
 
 let board = [];
@@ -1463,6 +1491,49 @@ function undoMove(){
 
     render();
     updatePanels();
+
+}
+
+async function createRoom(){
+
+    roomCode = Math.random()
+        .toString(36)
+        .substring(2,8)
+        .toUpperCase();
+
+    const boardState = JSON.stringify(
+        board,
+        (key,value)=>{
+            if(value instanceof Set){
+                return [...value];
+            }
+            return value;
+        }
+    );
+
+    const { error } = await supabaseClient
+        .from("rooms")
+        .insert({
+            room_code: roomCode,
+            board_state: boardState,
+            turn: turn,
+            player_white: playerId,
+            player_black: null
+        });
+
+    if(error){
+
+        console.error(error);
+        alert(error.message);
+        return;
+
+    }
+
+    playerColor = "white";
+
+    alert(
+        "Room created!\n\nCode: " + roomCode
+    );
 
 }
 
