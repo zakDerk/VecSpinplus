@@ -951,28 +951,18 @@ function render(){
         };
         
         
-        sq.onpointerup = ()=>{
+sq.onpointerup = ()=>{
 
-            if(holdTarget){
+    if(holdTarget){
 
-                let clickR = holdTarget.r;
-                let clickC = holdTarget.c;
+        clickSquare(
+            holdTarget.r,
+            holdTarget.c
+        );
 
-                if(flipped){
+    }
 
-                    clickR = SIZE - 1 - clickR;
-                    clickC = SIZE - 1 - clickC;
-
-                }
-
-                clickSquare(
-                    clickR,
-                    clickC
-                );
-
-            }
-
-        };
+};
         
         
         sq.onpointerleave = ()=>{
