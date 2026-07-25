@@ -1672,9 +1672,9 @@ function listenToRoom(){
         },
         payload=>{
 
-            board = JSON.parse(
-                payload.new.board_state
-            );
+            board = typeof payload.new.board_state === "string"
+                ? JSON.parse(payload.new.board_state)
+                : payload.new.board_state;
 
 
             board.forEach(row=>{
