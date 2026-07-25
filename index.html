@@ -841,8 +841,8 @@ function render(){
 
     el.innerHTML="";
     let rows = flipped
-        ? [...Array(SIZE).keys()].reverse()
-        : [...Array(SIZE).keys()];
+        ? [...Array(SIZE).keys()]
+        : [...Array(SIZE).keys()].reverse();
 
     let cols = flipped
         ? [...Array(SIZE).keys()]
