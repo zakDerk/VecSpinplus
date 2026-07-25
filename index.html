@@ -840,7 +840,9 @@ function render(){
     const el=document.getElementById("board");
 
     el.innerHTML="";
-    let rows = [...Array(SIZE).keys()];
+    let rows = flipped
+        ? [...Array(SIZE).keys()]
+        : [...Array(SIZE).keys()].reverse();
 
     let cols = flipped
         ? [...Array(SIZE).keys()].reverse()
