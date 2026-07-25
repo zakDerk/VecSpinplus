@@ -1614,6 +1614,7 @@ async function syncRoom(){
     if(!roomCode)
         return;
 
+    console.log("SYNCING ROOM:", roomCode);
 
     const boardState = JSON.stringify(
         board,
@@ -1625,7 +1626,6 @@ async function syncRoom(){
         }
     );
 
-
     const { error } = await supabaseClient
         .from("rooms")
         .update({
@@ -1634,13 +1634,14 @@ async function syncRoom(){
         })
         .eq("room_code", roomCode);
 
+    console.log("SYNC RESULT:", error);
 
     if(error){
         console.error(error);
+        alert(error.message);
     }
 
 }
-
 function resetGame(){
 
     moveHistory = [];
