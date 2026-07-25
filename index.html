@@ -623,6 +623,8 @@ function rotatePiece(amount){
     
     requestAnimationFrame(render);
 
+    syncRoom();
+
 }
 
 function pivotPiece(dir){
@@ -655,6 +657,8 @@ function pivotPiece(dir){
     changeTurn();
 
     requestAnimationFrame(render);
+
+    syncRoom();
 
 }
 
@@ -823,6 +827,8 @@ function tryMerge(r,c){
     changeTurn();
 
     render();
+
+    syncRoom();
 
 }
 
@@ -1168,6 +1174,8 @@ function clickSquare(r,c){
             checkWin();
 
             render();
+
+            syncRoom();
 
             return;
 
@@ -1540,6 +1548,8 @@ async function createRoom(){
         "Room created!\n\nCode: " + roomCode
     );
 
+    listenToRoom();
+
 }
 
 async function joinRoom(){
@@ -1593,7 +1603,41 @@ async function joinRoom(){
 
     alert("Joined room!");
 
+    listenToRoom();
+
     render();
+
+}
+
+async function syncRoom(){
+
+    if(!roomCode)
+        return;
+
+
+    const boardState = JSON.stringify(
+        board,
+        (key,value)=>{
+            if(value instanceof Set){
+                return [...value];
+            }
+            return value;
+        }
+    );
+
+
+    const { error } = await supabaseClient
+        .from("rooms")
+        .update({
+            board_state: boardState,
+            turn: turn
+        })
+        .eq("room_code", roomCode);
+
+
+    if(error){
+        console.error(error);
+    }
 
 }
 
@@ -1613,6 +1657,48 @@ function resetGame(){
     updatePanels();
 }
 
+function listenToRoom(){
+
+    supabaseClient
+    .channel("room-" + roomCode)
+    .on(
+        "postgres_changes",
+        {
+            event:"UPDATE",
+            schema:"public",
+            table:"rooms",
+            filter:"room_code=eq." + roomCode
+        },
+        payload=>{
+
+            board = JSON.parse(
+                payload.new.board_state
+            );
+
+
+            board.forEach(row=>{
+                row.forEach(piece=>{
+
+                    if(piece){
+                        piece.dirs = new Set(piece.dirs);
+                    }
+
+                });
+            });
+
+
+            turn = payload.new.turn;
+
+            selected=null;
+            validMoves=[];
+
+            render();
+
+        }
+    )
+    .subscribe();
+
+}
 
 function closeHelp(){
 
