@@ -277,13 +277,7 @@ button {
 
 }
 
-.board.flipped {
-    transform: rotate(180deg);
-}
 
-.board.flipped .piece {
-    transform: rotate(180deg);
-}
 </style>
 
 </head>
@@ -844,15 +838,15 @@ function tryMerge(r,c){
 function render(){
 
     const el=document.getElementById("board");
-    if(flipped){
-        el.classList.add("flipped");
-    }else{
-        el.classList.remove("flipped");
-    }
 
     el.innerHTML="";
-    let rows = [...Array(SIZE).keys()];
-    let cols = [...Array(SIZE).keys()];
+    let rows = flipped
+        ? [...Array(SIZE).keys()].reverse()
+        : [...Array(SIZE).keys()];
+
+    let cols = flipped
+        ? [...Array(SIZE).keys()].reverse()
+        : [...Array(SIZE).keys()];
 
 
     for(let r of rows){
@@ -958,23 +952,26 @@ function render(){
         
         
         sq.onpointerup = ()=>{
-        
-            if(holdTimer){
-        
-                clearTimeout(holdTimer);
-                holdTimer=null;
-        
-            }
-        
+
             if(holdTarget){
-        
+
+                let clickR = holdTarget.r;
+                let clickC = holdTarget.c;
+
+                if(flipped){
+
+                    clickR = SIZE - 1 - clickR;
+                    clickC = SIZE - 1 - clickC;
+
+                }
+
                 clickSquare(
-                    holdTarget.r,
-                    holdTarget.c
+                    clickR,
+                    clickC
                 );
-        
+
             }
-        
+
         };
         
         
