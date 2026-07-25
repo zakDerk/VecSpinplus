@@ -395,7 +395,7 @@ playerId = generatePlayerId();
 const SIZE = 8;
 
 let board = [];
-let turn = "white";
+let turn = "black";
 let selected = null;
 let validMoves = [];
 let gameOver = false;
@@ -1130,8 +1130,7 @@ function clickSquare(r,c){
 
 
     let piece=board[r][c];
-    if(piece && piece.color !== playerColor)
-    piece = null;
+
 
 
 
@@ -1196,7 +1195,11 @@ function clickSquare(r,c){
 
 
 
-    if(piece && piece.color===turn){
+    if(
+        piece &&
+        piece.color===turn &&
+        piece.color===playerColor
+        ){
 
 
         selected={
@@ -1541,8 +1544,8 @@ async function createRoom(){
             room_code: roomCode,
             board_state: boardState,
             turn: turn,
-            player_white: playerId,
-            player_black: null
+            player_white: null,
+            player_black: playerId
         });
 
     if(error){
@@ -1598,13 +1601,13 @@ async function joinRoom(){
     await supabaseClient
         .from("rooms")
         .update({
-            player_black: playerId
+            player_white: playerId
         })
         .eq("room_code", code);
 
 
     roomCode = code;
-    playerColor = "black";
+    playerColor = "white";
     flipped = true;
 
 
@@ -1659,7 +1662,7 @@ function resetGame(){
 
     moveHistory = [];
 
-    turn="white";
+    turn="black";
     selected=null;
     validMoves=[];
     gameOver=false;
