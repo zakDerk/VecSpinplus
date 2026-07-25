@@ -840,9 +840,7 @@ function render(){
     const el=document.getElementById("board");
 
     el.innerHTML="";
-    let rows = flipped
-        ? [...Array(SIZE).keys()].reverse()
-        : [...Array(SIZE).keys()];
+    let rows = [...Array(SIZE).keys()];
 
     let cols = flipped
         ? [...Array(SIZE).keys()].reverse()
@@ -951,18 +949,18 @@ function render(){
         };
         
         
-sq.onpointerup = ()=>{
+        sq.onpointerup = ()=>{
 
-    if(holdTarget){
+            if(holdTarget){
 
-        clickSquare(
-            holdTarget.r,
-            holdTarget.c
-        );
+                clickSquare(
+                    holdTarget.r,
+                    holdTarget.c
+                );
 
-    }
+            }
 
-};
+        };
         
         
         sq.onpointerleave = ()=>{
