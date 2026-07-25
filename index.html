@@ -348,6 +348,11 @@ Select a piece
 <button onclick="createRoom()">
 Create Room
 </button>
+<input id="joinCode" placeholder="Enter room code">
+
+<button onclick="joinRoom()">
+Join Room
+</button>
 
 
 </div>
@@ -1534,6 +1539,61 @@ async function createRoom(){
     alert(
         "Room created!\n\nCode: " + roomCode
     );
+
+}
+
+async function joinRoom(){
+
+    const code = document
+        .getElementById("joinCode")
+        .value
+        .toUpperCase();
+
+    const { data, error } = await supabaseClient
+        .from("rooms")
+        .select("*")
+        .eq("room_code", code)
+        .single();
+
+
+    if(error){
+
+        console.error(error);
+        alert("Room not found");
+        return;
+
+    }
+
+
+    if(data.player_black !== null){
+
+        alert("Room is already full");
+        return;
+
+    }
+
+
+    await supabaseClient
+        .from("rooms")
+        .update({
+            player_black: playerId
+        })
+        .eq("room_code", code);
+
+
+    roomCode = code;
+    playerColor = "black";
+
+
+    board = JSON.parse(data.board_state);
+
+
+    turn = data.turn;
+
+
+    alert("Joined room!");
+
+    render();
 
 }
 
