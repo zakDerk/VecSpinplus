@@ -276,6 +276,14 @@ button {
     }
 
 }
+
+.board.flipped {
+    transform: rotate(180deg);
+}
+
+.board.flipped .piece {
+    transform: rotate(180deg);
+}
 </style>
 
 </head>
@@ -836,16 +844,15 @@ function tryMerge(r,c){
 function render(){
 
     const el=document.getElementById("board");
+    if(flipped){
+        el.classList.add("flipped");
+    }else{
+        el.classList.remove("flipped");
+    }
 
     el.innerHTML="";
-
-    let rows = flipped
-        ? [...Array(SIZE).keys()].reverse()
-        : [...Array(SIZE).keys()];
-
-    let cols = flipped
-        ? [...Array(SIZE).keys()].reverse()
-        : [...Array(SIZE).keys()];
+    let rows = [...Array(SIZE).keys()];
+    let cols = [...Array(SIZE).keys()];
 
 
     for(let r of rows){
@@ -1611,7 +1618,7 @@ async function joinRoom(){
     flipped = true;
 
 
-    board = JSON.parse(data.board_state);
+    board = JSON.parse(data.board_state)
 
 
     turn = data.turn;
