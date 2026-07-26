@@ -407,6 +407,7 @@ let lastMove = null;
 let moveHistory = [];
 let previousBoardState = null;
 let lastPlayer = null;
+let previousTurn = null;
 let startRotation = 0;
 let holdTimer = null;
 let holdTarget = null;
@@ -1134,6 +1135,8 @@ function clickSquare(r,c){
 
         if(move){
             previousBoardState = serializeBoard();
+            previousTurn = turn;
+
             saveState();
             let attacker=
             board[selected.r][selected.c];
@@ -1595,11 +1598,14 @@ async function executeUndo(){
 
     board = oldBoard;
 
+    const { data } = await supabaseClient
+    .from("rooms")
+    .select("previous_turn")
+    .eq("room_code", roomCode)
+    .single();
 
-    turn =
-        turn === "white"
-        ? "black"
-        : "white";
+
+    turn = data.previous_turn;
 
 
     const boardState = JSON.stringify(
@@ -1774,7 +1780,8 @@ async function syncRoom(){
         .update({
             board_state: boardState,
             turn: turn,
-            previous_board_state: previousBoardState
+            previous_board_state: previousBoardState,
+            previous_turn: previousTurn
         })
         .eq("room_code", roomCode);
 
