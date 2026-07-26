@@ -378,6 +378,7 @@ let playerId = null;
 let playerColor = null;
 let flipped = false;
 let lastMoveBy = null;
+let waitingForUndoResponse = false;
 
 function generatePlayerId(){
 
@@ -1543,6 +1544,9 @@ async function requestUndo(){
 
     if(!roomCode)
         return;
+    waitingForUndoResponse = true;
+
+    alert("Undo request sent. Waiting for opponent response.");
 
 
     const { error } = await supabaseClient
@@ -1883,8 +1887,10 @@ function listenToRoom(){
 
                 if(payload.new.undo_response === "accepted"){
                     if(payload.new.undo_response === "accepted"){
-
+                        
+                        waitingForUndoResponse = false;
                         await executeUndo();
+                        
 
                     }
                     await supabaseClient
@@ -1896,6 +1902,8 @@ function listenToRoom(){
 
                 }
                 else if(payload.new.undo_response === "rejected"){
+
+                    waitingForUndoResponse = false;
 
                     alert("Undo request rejected.");
                     await supabaseClient
