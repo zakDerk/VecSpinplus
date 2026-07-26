@@ -83,6 +83,19 @@ body {
     cursor:not-allowed;
 }
 
+.multiplayerBox button {
+    padding:7px 15px;
+    font-size:13px;
+    border-radius:20px;
+}
+
+.multiplayerBox input {
+    padding:7px 12px;
+    border-radius:20px;
+    width:150px;
+    border:none;
+}
+
 .game {
     width:95vw;
     max-width:500px;
@@ -281,6 +294,17 @@ button {
 
 }
 
+.startButton {
+    background:#2ecc71;
+    color:white;
+    padding:10px 25px;
+    border-radius:30px;
+    font-weight:bold;
+}
+
+.startButton:hover {
+    background:#27ae60;
+}
 
 </style>
 
@@ -335,7 +359,7 @@ button {
             </button>
 
         </div>
-        <button onclick="closeHelp()">
+        <button class="startButton" onclick="closeHelp()">
             Start Game
         </button>
 
@@ -1979,6 +2003,21 @@ function openMenu(){
 function copyRoomCode(){
 
     navigator.clipboard.writeText(roomCode);
+
+    let btn = event.target;
+
+    btn.textContent = "Copied";
+
+    btn.style.background = "#8b1f35";
+
+
+    setTimeout(()=>{
+
+        btn.textContent = "Copy";
+
+        btn.style.background = "";
+
+    },2000);
 
 }
 
