@@ -1540,6 +1540,27 @@ async function requestUndo(){
 
 }
 
+async function respondUndo(response){
+
+    const { error } = await supabaseClient
+    .from("rooms")
+    .update({
+
+        undo_response: response
+
+    })
+    .eq("room_code", roomCode);
+
+
+    if(error){
+
+        console.error(error);
+        alert(error.message);
+
+    }
+
+}
+
 async function createRoom(){
 
     roomCode = Math.random()
@@ -1720,7 +1741,7 @@ function listenToRoom(){
             table:"rooms",
             filter:"room_code=eq." + roomCode
         },
-        payload=>{
+        async payload=>{
 
             board = typeof payload.new.board_state === "string"
                 ? JSON.parse(payload.new.board_state)
@@ -1744,7 +1765,28 @@ function listenToRoom(){
             validMoves=[];
 
             render();
+            
+            if(
+                payload.new.undo_request &&
+                payload.new.undo_request_by !== playerColor
+            ){
 
+                let answer = confirm(
+                    "Opponent requested undo. Accept?"
+                );
+
+
+                if(answer){
+
+                    await respondUndo("accepted");
+
+                }else{
+
+                    await respondUndo("rejected");
+
+                }
+
+            }
         }
     )
     .subscribe();
