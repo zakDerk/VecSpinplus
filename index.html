@@ -294,7 +294,7 @@ button {
 
     <div class="helpBox">
 
-        <h2>🧭VecSpin⚔️</h2>
+        <h2>☰ VecSpin Menu</h2>
 
         <p>
         Select a piece to see its possible moves.
@@ -304,7 +304,37 @@ button {
         <p>
         Use the direction buttons to pivot your piece's arrow and change its movement direction.
         </p>
+        <div class="multiplayerBox">
 
+            <h3>Multiplayer</h3>
+
+            <button onclick="createRoom()">
+                Create Room
+            </button>
+
+            <br><br>
+
+            <div id="roomDisplay" style="display:none;">
+
+                <p>Your Room Code:</p>
+
+                <strong id="roomCodeText"></strong>
+
+                <button onclick="copyRoomCode()">
+                    Copy
+                </button>
+
+            </div>
+
+            <br>
+
+            <input id="joinCode" placeholder="Enter room code">
+
+            <button onclick="joinRoom()">
+                Join Room
+            </button>
+
+        </div>
         <button onclick="closeHelp()">
             Start Game
         </button>
@@ -312,6 +342,9 @@ button {
     </div>
 
 </div>
+<button id="menuButton" onclick="openMenu()">
+☰ Menu
+</button>
 
 <h1>🧭VecSpin⚔️</h1>
 
@@ -336,6 +369,7 @@ WHITE
 ↶ Undo
 </button>
 
+
 <div id="whitePanel" class="panel"></div>
 
 <div id="board" class="board"></div>
@@ -351,14 +385,7 @@ Select a piece
 <button onclick="resetGame()">
 ⟳ New Game
 </button>
-<button onclick="createRoom()">
-Create Room
-</button>
-<input id="joinCode" placeholder="Enter room code">
 
-<button onclick="joinRoom()">
-Join Room
-</button>
 
 
 </div>
@@ -1706,9 +1733,9 @@ async function createRoom(){
     playerColor = "black";
     flipped = false;
 
-    alert(
-        "Room created!\n\nCode: " + roomCode
-    );
+    document.getElementById("roomDisplay").style.display="block";
+
+    document.getElementById("roomCodeText").textContent = roomCode;
 
     listenToRoom();
 
@@ -1941,6 +1968,17 @@ function listenToRoom(){
         }
     )
     .subscribe();
+
+}
+function openMenu(){
+
+    document.getElementById("helpPopup").style.display="flex";
+
+}
+
+function copyRoomCode(){
+
+    navigator.clipboard.writeText(roomCode);
 
 }
 
