@@ -1939,14 +1939,15 @@ function listenToRoom(){
                 payload.new.undo_request === false &&
                 payload.new.undo_request_by === null
             ){
-            if(payload.new.undo_response === "accepted"){
 
-                waitingForUndoResponse = false;
+                if(payload.new.undo_response === "accepted"){
+                    if(payload.new.undo_response === "accepted"){
 
-                showMessage("✅ Undo request accepted.");
+                        waitingForUndoResponse = false;
 
-                await executeUndo();
-                        
+                        showMessage("✅ Undo request accepted.");
+
+                        await executeUndo();    
 
                     }
                     await supabaseClient
