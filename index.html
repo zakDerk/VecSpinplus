@@ -1069,7 +1069,7 @@ function render(){
     flashSquare = null;
     updateStatus();
     updateUndoButton();
-
+    renderMessage();
 }
 
 
@@ -2056,11 +2056,7 @@ function copyRoomCode(){
     },2000);
 
 }
-function showMessage(text){
 
-    document.getElementById("info").textContent = text;
-
-}
 function showMessage(text){
 
     gameMessage = text;
