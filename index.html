@@ -401,6 +401,8 @@ WHITE
 <div id="blackPanel" class="panel"></div>
 
 
+<div id="messageBar" class="info"></div>
+
 <div id="info" class="info">
 Select a piece
 </div>
@@ -430,6 +432,8 @@ let playerColor = null;
 let flipped = false;
 let lastMoveBy = null;
 let waitingForUndoResponse = false;
+let gameMessage = "";
+let messageTimer = null;
 
 function generatePlayerId(){
 
@@ -1618,7 +1622,7 @@ async function requestUndo(){
         alert(error.message);
 
     }
-
+    showMessage("Undo request sent");
 }
 
 async function respondUndo(response){
@@ -2023,6 +2027,31 @@ function copyRoomCode(){
 function showMessage(text){
 
     document.getElementById("info").textContent = text;
+
+}
+function showMessage(text){
+
+    gameMessage = text;
+
+    renderMessage();
+
+    if(messageTimer){
+        clearTimeout(messageTimer);
+    }
+
+    messageTimer = setTimeout(()=>{
+
+        gameMessage = "";
+        renderMessage();
+
+    },3000);
+
+}
+
+function renderMessage(){
+
+    document.getElementById("messageBar").textContent =
+        gameMessage;
 
 }
 
