@@ -1956,7 +1956,7 @@ function listenToRoom(){
             filter:"room_code=eq." + roomCode
         },
         async payload=>{
-
+            console.log("UNDO DATA:", payload.new.undo_response, payload.new.undo_request, payload.new.undo_request_by, waitingForUndoResponse);
             board = typeof payload.new.board_state === "string"
                 ? JSON.parse(payload.new.board_state)
                 : payload.new.board_state;
