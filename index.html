@@ -328,7 +328,7 @@ WHITE
 
 </div>
 
-<button class="undoButton" onclick="undoMove()">
+<button class="undoButton" onclick="requestUndo()">
 ↶ Undo
 </button>
 
@@ -1510,6 +1510,33 @@ function undoMove(){
 
     render();
     updatePanels();
+
+}
+
+async function requestUndo(){
+
+    if(!roomCode)
+        return;
+
+
+    const { error } = await supabaseClient
+    .from("rooms")
+    .update({
+
+        undo_request:true,
+        undo_request_by:playerColor,
+        undo_response:null
+
+    })
+    .eq("room_code", roomCode);
+
+
+    if(error){
+
+        console.error(error);
+        alert(error.message);
+
+    }
 
 }
 
