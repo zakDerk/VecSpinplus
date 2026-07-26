@@ -1767,6 +1767,52 @@ function listenToRoom(){
             validMoves=[];
 
             render();
+
+            // I requested an undo and the opponent answered
+            if(
+                payload.new.undo_response &&
+                payload.new.undo_request === false &&
+                payload.new.undo_request_by === null
+            ){
+
+                if(payload.new.undo_response === "accepted"){
+
+                    board = JSON.parse(payload.new.previous_board_state);
+
+                    board.forEach(row=>{
+                        row.forEach(piece=>{
+                            if(piece){
+                                piece.dirs = new Set(piece.dirs);
+                            }
+                        });
+                    });
+
+                    selected = null;
+                    validMoves = [];
+                    gameOver = false;
+
+                    render();
+                    await supabaseClient
+                    .from("rooms")
+                    .update({
+                        undo_response: null
+                    })
+                    .eq("room_code", roomCode);
+
+                }
+                else if(payload.new.undo_response === "rejected"){
+
+                    alert("Undo request rejected.");
+                    await supabaseClient
+                    .from("rooms")
+                    .update({
+                        undo_response: null
+                    })
+                    .eq("room_code", roomCode);
+
+                }
+
+            }
             
             if(
                 payload.new.undo_request &&
