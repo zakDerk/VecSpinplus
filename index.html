@@ -1623,7 +1623,6 @@ async function requestUndo(){
         alert(error.message);
 
     }
-    showMessage("Undo request sent");
 }
 
 async function respondUndo(response){
@@ -1940,12 +1939,13 @@ function listenToRoom(){
                 payload.new.undo_request === false &&
                 payload.new.undo_request_by === null
             ){
+            if(payload.new.undo_response === "accepted"){
 
-                if(payload.new.undo_response === "accepted"){
-                    if(payload.new.undo_response === "accepted"){
-                        
-                        waitingForUndoResponse = false;
-                        await executeUndo();
+                waitingForUndoResponse = false;
+
+                showMessage("✅ Undo request accepted.");
+
+                await executeUndo();
                         
 
                     }
