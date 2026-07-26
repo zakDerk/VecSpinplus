@@ -1497,7 +1497,13 @@ function updateUndoButton(){
         return;
 
 
-    btn.disabled = lastMoveBy !== playerColor;
+    let canUndo =
+        lastMoveBy === playerColor &&
+        previousBoardState !== null &&
+        serializeBoard() !== previousBoardState;
+
+
+    btn.disabled = !canUndo;
 
 }
 
@@ -1758,6 +1764,10 @@ async function executeUndo(){
     validMoves=[];
 
     render();
+    previousBoardState = null;
+    previousTurn = null;
+    lastMoveBy = null;
+    updateUndoButton();
 
 }
 
