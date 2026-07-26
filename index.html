@@ -405,10 +405,11 @@ let actionMode = "move";
 let flashSquare = null;
 let lastMove = null;
 let moveHistory = [];
+let previousBoardState = null;
+let lastPlayer = null;
 let startRotation = 0;
 let holdTimer = null;
 let holdTarget = null;
-
 
 const DIRS = {
     n:{r:-1,c:0},
@@ -1132,6 +1133,7 @@ function clickSquare(r,c){
 
 
         if(move){
+            previousBoardState = serializeBoard();
             saveState();
             let attacker=
             board[selected.r][selected.c];
@@ -1167,6 +1169,7 @@ function clickSquare(r,c){
             selected=null;
             validMoves=[];
 
+            lastPlayer = playerColor;
 
             changeTurn();
 
@@ -1613,6 +1616,21 @@ async function joinRoom(){
 
 }
 
+function serializeBoard(){
+
+    return JSON.stringify(
+        board,
+        (key,value)=>{
+            if(value instanceof Set){
+                return [...value];
+            }
+            return value;
+        }
+    );
+
+}
+
+
 async function syncRoom(){
 
     if(!roomCode)
@@ -1634,7 +1652,8 @@ async function syncRoom(){
         .from("rooms")
         .update({
             board_state: boardState,
-            turn: turn
+            turn: turn,
+            previous_board_state: previousBoardState
         })
         .eq("room_code", roomCode);
 
