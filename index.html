@@ -367,6 +367,27 @@ button {
     </div>
 
 </div>
+<div id="undoPopup" class="helpPopup" style="display:none;">
+
+    <div class="helpBox">
+
+        <h2>⚔️ Undo Request</h2>
+
+        <p>
+        Your opponent requested an undo.
+        </p>
+
+        <button onclick="acceptUndo()">
+            Accept
+        </button>
+
+        <button onclick="rejectUndo()">
+            Reject
+        </button>
+
+    </div>
+
+</div>
 <button id="menuButton" onclick="openMenu()">
 ☰ Menu
 </button>
@@ -435,6 +456,7 @@ let lastMoveBy = null;
 let waitingForUndoResponse = false;
 let gameMessage = "";
 let messageTimer = null;
+let pendingUndoRequest = false;
 
 function generatePlayerId(){
 
@@ -1625,6 +1647,23 @@ async function requestUndo(){
     }
 }
 
+function acceptUndo(){
+
+    document.getElementById("undoPopup").style.display="none";
+
+    respondUndo("accepted");
+
+}
+
+
+function rejectUndo(){
+
+    document.getElementById("undoPopup").style.display="none";
+
+    respondUndo("rejected");
+
+}
+
 async function respondUndo(response){
 
     const { error } = await supabaseClient
@@ -1979,20 +2018,7 @@ function listenToRoom(){
                 payload.new.undo_request_by !== playerColor
             ){
 
-                let answer = confirm(
-                    "Opponent requested undo. Accept?"
-                );
-
-
-                if(answer){
-
-                    await respondUndo("accepted");
-
-                }else{
-
-                    await respondUndo("rejected");
-
-                }
+                document.getElementById("undoPopup").style.display="flex";
 
             }
         }
