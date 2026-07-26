@@ -840,15 +840,10 @@ function render(){
     const el=document.getElementById("board");
 
     el.innerHTML="";
-    let rows = flipped
-        ? [...Array(SIZE).keys()]
-        : [...Array(SIZE).keys()].reverse();
+    //let rows = flipped
 
-    let cols = flipped
-        ? [...Array(SIZE).keys()]
-        : [...Array(SIZE).keys()].reverse();
-
-
+    let rows = [...Array(SIZE).keys()];
+    let cols = [...Array(SIZE).keys()];
     for(let r of rows){
 
         for(let c of cols){
@@ -1602,11 +1597,10 @@ async function joinRoom(){
 
     roomCode = code;
     playerColor = "white";
-    flipped = true;
 
+    flipped = false;
 
-    board = JSON.parse(data.board_state)
-
+    board = JSON.parse(data.board_state);
 
     turn = data.turn;
 
