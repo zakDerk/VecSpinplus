@@ -1546,7 +1546,9 @@ async function respondUndo(response){
     .from("rooms")
     .update({
 
-        undo_response: response
+        undo_response: response,
+        undo_request: false,
+        undo_request_by: null
 
     })
     .eq("room_code", roomCode);
