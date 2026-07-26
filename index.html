@@ -1563,6 +1563,77 @@ async function respondUndo(response){
 
 }
 
+async function executeUndo(){
+
+    if(!roomCode)
+        return;
+
+
+    let oldBoard = JSON.parse(
+        JSON.stringify(
+            JSON.parse(
+                (await supabaseClient
+                .from("rooms")
+                .select("previous_board_state")
+                .eq("room_code", roomCode)
+                .single())
+                .data
+                .previous_board_state
+            )
+        )
+    );
+
+
+    oldBoard.forEach(row=>{
+        row.forEach(piece=>{
+            if(piece){
+                piece.dirs = new Set(piece.dirs);
+            }
+        });
+    });
+
+
+    board = oldBoard;
+
+
+    turn =
+        turn === "white"
+        ? "black"
+        : "white";
+
+
+    const boardState = JSON.stringify(
+        board,
+        (key,value)=>{
+            if(value instanceof Set){
+                return [...value];
+            }
+            return value;
+        }
+    );
+
+
+    await supabaseClient
+    .from("rooms")
+    .update({
+
+        board_state: boardState,
+        turn: turn,
+        undo_request:false,
+        undo_request_by:null,
+        undo_response:null
+
+    })
+    .eq("room_code", roomCode);
+
+
+    selected=null;
+    validMoves=[];
+
+    render();
+
+}
+
 async function createRoom(){
 
     roomCode = Math.random()
@@ -1776,22 +1847,11 @@ function listenToRoom(){
             ){
 
                 if(payload.new.undo_response === "accepted"){
+                    if(payload.new.undo_response === "accepted"){
 
-                    board = JSON.parse(payload.new.previous_board_state);
+                        await executeUndo();
 
-                    board.forEach(row=>{
-                        row.forEach(piece=>{
-                            if(piece){
-                                piece.dirs = new Set(piece.dirs);
-                            }
-                        });
-                    });
-
-                    selected = null;
-                    validMoves = [];
-                    gameOver = false;
-
-                    render();
+                    }
                     await supabaseClient
                     .from("rooms")
                     .update({
