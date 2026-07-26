@@ -1992,7 +1992,7 @@ function listenToRoom(){
             ){
 
                 if(payload.new.undo_response === "accepted"){
-                    if(payload.new.undo_response === "accepted"){
+                        console.log("ACCEPTED BLOCK ENTERED");
 
                         waitingForUndoResponse = false;
 
@@ -2002,12 +2002,12 @@ function listenToRoom(){
                         showMessage("✅ Undo request accepted.");
  
 
-                    }
+                    
 
 
                 }
                 else if(payload.new.undo_response === "rejected"){
-
+                    console.log("REJECTED BLOCK ENTERED");
                     waitingForUndoResponse = false;
 
                     showMessage("❌ Undo request rejected.");
