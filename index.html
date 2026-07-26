@@ -328,7 +328,7 @@ WHITE
 
 </div>
 
-<button class="undoButton" onclick="requestUndo()">
+<button id="undoButton" class="undoButton" onclick="requestUndo()">
 ↶ Undo
 </button>
 
@@ -373,6 +373,7 @@ let roomCode = null;
 let playerId = null;
 let playerColor = null;
 let flipped = false;
+let lastMoveBy = null;
 
 function generatePlayerId(){
 
@@ -624,8 +625,10 @@ function rotatePiece(amount){
     selected=null;
     validMoves=[];
     
+    lastMoveBy = playerColor;
+
     changeTurn();
-    
+
     requestAnimationFrame(render);
 
     syncRoom();
@@ -659,6 +662,8 @@ function pivotPiece(dir){
     selected = null;
     validMoves = [];
     
+    lastMoveBy = playerColor;
+
     changeTurn();
 
     requestAnimationFrame(render);
@@ -978,9 +983,9 @@ function render(){
 
         }
     }
-
     flashSquare = null;
     updateStatus();
+    updateUndoButton();
 
 }
 
@@ -1173,6 +1178,8 @@ function clickSquare(r,c){
             validMoves=[];
 
             lastPlayer = playerColor;
+                        
+            lastMoveBy = playerColor;
 
             changeTurn();
 
@@ -1396,6 +1403,18 @@ function createDirectionPanels(){
     
     blackPanel.appendChild(rotateLeftB);
     updatePanels();
+
+}
+
+function updateUndoButton(){
+
+    const btn = document.getElementById("undoButton");
+
+    if(!btn)
+        return;
+
+
+    btn.disabled = lastMoveBy !== playerColor;
 
 }
 
@@ -1658,14 +1677,15 @@ async function createRoom(){
     );
 
     const { error } = await supabaseClient
-        .from("rooms")
-        .insert({
-            room_code: roomCode,
-            board_state: boardState,
-            turn: turn,
-            player_white: null,
-            player_black: playerId
-        });
+            .from("rooms")
+            .insert({
+                room_code: roomCode,
+                board_state: boardState,
+                turn: turn,
+                player_white: null,
+                player_black: playerId,
+                last_move_by: null
+            });
 
     if(error){
 
@@ -1777,11 +1797,12 @@ async function syncRoom(){
 
     const { error } = await supabaseClient
         .from("rooms")
-        .update({
+       .update({
             board_state: boardState,
             turn: turn,
             previous_board_state: previousBoardState,
-            previous_turn: previousTurn
+            previous_turn: previousTurn,
+            last_move_by: lastMoveBy
         })
         .eq("room_code", roomCode);
 
@@ -1793,6 +1814,7 @@ async function syncRoom(){
     }
 
 }
+
 function resetGame(){
 
     moveHistory = [];
@@ -1840,6 +1862,8 @@ function listenToRoom(){
 
 
             turn = payload.new.turn;
+            lastMoveBy = payload.new.last_move_by;
+            updateUndoButton();
 
             selected=null;
             validMoves=[];
