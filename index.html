@@ -298,7 +298,7 @@ button {
     background:#2ecc71;
     color:white;
     padding:10px 25px;
-    border-radius:30px;
+    border-radius:8px;
     font-weight:bold;
 }
 
@@ -1597,7 +1597,7 @@ async function requestUndo(){
         return;
     waitingForUndoResponse = true;
 
-    alert("Undo request sent. Waiting for opponent response.");
+    showMessage("⏳ Undo request sent. Waiting for opponent response...");
 
 
     const { error } = await supabaseClient
@@ -1956,7 +1956,7 @@ function listenToRoom(){
 
                     waitingForUndoResponse = false;
 
-                    alert("Undo request rejected.");
+                    showMessage("❌ Undo request rejected.");
                     await supabaseClient
                     .from("rooms")
                     .update({
@@ -2018,6 +2018,11 @@ function copyRoomCode(){
         btn.style.background = "";
 
     },2000);
+
+}
+function showMessage(text){
+
+    document.getElementById("info").textContent = text;
 
 }
 
