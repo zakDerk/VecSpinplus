@@ -1986,7 +1986,8 @@ function listenToRoom(){
             if(
                 payload.new.undo_response &&
                 payload.new.undo_request === false &&
-                payload.new.undo_request_by === null
+                payload.new.undo_request_by === null &&
+                waitingForUndoResponse
             ){
 
                 if(payload.new.undo_response === "accepted"){
@@ -1999,12 +2000,7 @@ function listenToRoom(){
                         await executeUndo();    
 
                     }
-                    await supabaseClient
-                    .from("rooms")
-                    .update({
-                        undo_response: null
-                    })
-                    .eq("room_code", roomCode);
+
 
                 }
                 else if(payload.new.undo_response === "rejected"){
@@ -2012,12 +2008,7 @@ function listenToRoom(){
                     waitingForUndoResponse = false;
 
                     showMessage("❌ Undo request rejected.");
-                    await supabaseClient
-                    .from("rooms")
-                    .update({
-                        undo_response: null
-                    })
-                    .eq("room_code", roomCode);
+
 
                 }
 
