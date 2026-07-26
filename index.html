@@ -1763,11 +1763,12 @@ async function executeUndo(){
     selected=null;
     validMoves=[];
 
-    render();
+    
     previousBoardState = null;
     previousTurn = null;
     lastMoveBy = null;
     updateUndoButton();
+    render();
 
 }
 
@@ -1995,9 +1996,11 @@ function listenToRoom(){
 
                         waitingForUndoResponse = false;
 
-                        showMessage("✅ Undo request accepted.");
+                        
+                        await executeUndo();   
 
-                        await executeUndo();    
+                        showMessage("✅ Undo request accepted.");
+ 
 
                     }
 
