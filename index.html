@@ -305,6 +305,17 @@ button {
 .startButton:hover {
     background:#27ae60;
 }
+.topBar {
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:12px;
+}
+
+.topBar h1 {
+    margin:0;
+    font-size:24px;
+}
 
 </style>
 
@@ -388,11 +399,15 @@ button {
     </div>
 
 </div>
-<button id="menuButton" onclick="openMenu()">
-☰ Menu
-</button>
+<div class="topBar">
 
-<h1>🧭VecSpin⚔️</h1>
+    <button id="menuButton" onclick="openMenu()">
+    ☰ Menu
+    </button>
+
+    <h1>🧭VecSpin⚔️</h1>
+
+</div>
 
 
 <div class="status">
