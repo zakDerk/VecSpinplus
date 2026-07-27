@@ -1096,7 +1096,10 @@ function render(){
 
         }
     }
-    flashSquare = null;
+    setTimeout(()=>{
+        flashSquare = null;
+        render();
+    },500);
     updateStatus();
     updateUndoButton();
     
@@ -1940,12 +1943,14 @@ async function syncRoom(){
 
     const { error } = await supabaseClient
         .from("rooms")
-       .update({
+        .update({
             board_state: boardState,
             turn: turn,
             previous_board_state: previousBoardState,
             previous_turn: previousTurn,
-            last_move_by: lastMoveBy
+            last_move_by: lastMoveBy,
+            flash_square: flashSquare,
+            last_move: lastMove
         })
         .eq("room_code", roomCode);
 
@@ -2006,6 +2011,8 @@ function listenToRoom(){
 
             turn = payload.new.turn;
             lastMoveBy = payload.new.last_move_by;
+            flashSquare = payload.new.flash_square;
+            lastMove = payload.new.last_move;
             updateUndoButton();
 
             selected=null;
