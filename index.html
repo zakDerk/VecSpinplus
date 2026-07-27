@@ -1096,10 +1096,12 @@ function render(){
 
         }
     }
-    setTimeout(()=>{
-        flashSquare = null;
-        render();
-    },500);
+    if(flashSquare){
+        setTimeout(()=>{
+            flashSquare = null;
+            render();
+        },500);
+    }
     updateStatus();
     updateUndoButton();
     
