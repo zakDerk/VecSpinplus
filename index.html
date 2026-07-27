@@ -2057,20 +2057,25 @@ function copyRoomCode(){
 
 }
 
+let messageId = 0;
+
 function showMessage(text){
-    console.log("SHOW MESSAGE:", text);
+
+    messageId++;
+
+    const myId = messageId;
 
     gameMessage = text;
 
     renderMessage();
 
-    if(messageTimer){
-        clearTimeout(messageTimer);
-    }
+    setTimeout(()=>{
 
-    messageTimer = setTimeout(()=>{
+        if(myId !== messageId)
+            return;
 
         gameMessage = "";
+
         renderMessage();
 
     },3000);
