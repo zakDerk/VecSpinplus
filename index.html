@@ -322,13 +322,14 @@ button {
     top: 20px;
     left: 50%;
     transform: translateX(-50%);
-    background: #16213e;
     color: white;
     padding: 12px 25px;
     border-radius: 25px;
     font-weight: bold;
     z-index: 2000;
     box-shadow: 0 5px 20px #000;
+
+    display:none;
 }
 
 </style>
@@ -2107,7 +2108,7 @@ function showMessage(text){
 
         renderMessage();
 
-    },3000);
+    },4500);
 
 }
 
@@ -2115,7 +2116,30 @@ function renderMessage(){
 
     console.log("MESSAGE BAR =", gameMessage);
 
-    document.getElementById("messageBar").textContent = gameMessage;
+    const bar = document.getElementById("messageBar");
+
+    bar.textContent = gameMessage;
+
+    if(gameMessage){
+
+        bar.style.display = "block";
+
+        if(gameMessage.includes("accepted")){
+            bar.style.background = "#2ecc71"; // green
+        }
+        else if(gameMessage.includes("rejected")){
+            bar.style.background = "#e74c3c"; // red
+        }
+        else{
+            bar.style.background = "#16213e"; // normal
+        }
+
+    }
+    else{
+
+        bar.style.display = "none";
+
+    }
 
 }
 
