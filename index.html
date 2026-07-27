@@ -926,7 +926,7 @@ function tryMerge(r,c){
 }
 
 function render(){
-
+    console.log("RENDER");
     const el=document.getElementById("board");
 
     el.innerHTML="";
@@ -2079,8 +2079,9 @@ function showMessage(text){
 
 function renderMessage(){
 
-    document.getElementById("messageBar").textContent =
-        gameMessage;
+    console.log("MESSAGE BAR =", gameMessage);
+
+    document.getElementById("messageBar").textContent = gameMessage;
 
 }
 
