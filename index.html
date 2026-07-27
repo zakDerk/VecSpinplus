@@ -2061,22 +2061,24 @@ let messageId = 0;
 
 function showMessage(text){
 
-    const box = document.getElementById("messagePopupText");
+    messageId++;
 
-    box.textContent = text;
+    const myId = messageId;
 
-    // reset old color
-    box.style.color = "white";
+    gameMessage = text;
 
-    if(text.includes("accepted")){
-        box.style.color = "#2ecc71"; // green
-    }
+    renderMessage();
 
-    if(text.includes("rejected")){
-        box.style.color = "#ff4757"; // red
-    }
+    setTimeout(()=>{
 
-    document.getElementById("messagePopup").style.display = "flex";
+        if(myId !== messageId)
+            return;
+
+        gameMessage = "";
+
+        renderMessage();
+
+    },3000);
 
 }
 
